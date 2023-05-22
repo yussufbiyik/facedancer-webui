@@ -14,19 +14,23 @@ facedancer_model_path = facedancer_model_path.replace(os.sep, '/')
 
 def swap_faces(inputImg, targetImg, targetVid, inputType):
     mainTarget=targetVid
+    if inputType=="Image":
+        mainTarget = targetImg
     resultFileName = "results/{}".format(current_milli_time())
     outputFile = os.path.join(facedancer_path, resultFileName)
     inputImg = inputImg.replace(os.sep, '/')
     mainTarget = mainTarget.replace(os.sep, '/')
     outputFile = outputFile.replace(os.sep, '/')
     if inputType=="Image":
-        mainTarget = targetImg
         cmd = '''cd {} && conda activate facedancer && python test_image_swap_multi.py --facedancer_path "{}" --swap_source "{}" --img_path "{}" --img_output "{}.png"'''.format(facedancer_path, facedancer_model_path, inputImg, mainTarget, outputFile)
     else:
         cmd = '''cd {} && conda activate facedancer && python test_video_swap_multi.py --facedancer_path "{}" --swap_source "{}" --vid_path "{}" --vid_output "{}.mp4"'''.format(facedancer_path, facedancer_model_path, inputImg, mainTarget, outputFile)
     try:
-        subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
-        if inputType=="Image":
+        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+        for line in process.stdout:
+            print(line)
+        process.wait()  # Wait for the process to finish
+        if inputType == "Image":
             return [outputFile + ".png", None]
         else:
             return [None, outputFile + ".mp4"]

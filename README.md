@@ -23,6 +23,7 @@ gradio app.py
 
 ## Todos
 - [ ] Move gif input to image box
+- [ ] Add webcam input
 - [ ] Add model selector
 - [ ] Add live console output to UI
 - [ ] Add options to save as png, jpg, mp4 etc.

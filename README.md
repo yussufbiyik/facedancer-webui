@@ -25,6 +25,6 @@ gradio app.py
 - [ ] Move gif input to image box
 - [ ] Add webcam input
 - [x] Add model selector
-- [ ] Add live console output to UI
+- [x] Add ~~live~~ console output to UI
 - [ ] Add options to save as png, jpg, mp4 etc.
 - [ ] Prevent UI elements from getting to tall and crossing 100% height

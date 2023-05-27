@@ -36,17 +36,19 @@ def swap_faces(inputImg, targetImg, targetVid, inputType):
         cmd = '''cd {} && conda activate facedancer && python test_video_swap_multi.py --facedancer_path "{}" --swap_source "{}" --vid_path "{}" --vid_output "{}.mp4"'''.format(facedancer_path, facedancer_model_path, inputImg, mainTarget, outputFile)
     try:
         process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+        consoleLog = ""
         for line in process.stdout:
             print(line)
+            consoleLog += line
         # Wait for the process to finish
         process.wait()
         if inputType == "Image":
-            return [outputFile + ".png", None]
+            return [outputFile + ".png", None, consoleLog]
         else:
-            return [None, outputFile + ".mp4"]
+            return [None, outputFile + ".mp4", consoleLog]
     except subprocess.CalledProcessError as e:
         print(e.output)
-        return [None, None]
+        return [None, None, consoleLog]
 
 # Opens the save directory in dedicated expolorer of each os
 def open_save_dir():
@@ -79,7 +81,7 @@ with gr.Blocks() as demo:
             saveDirectoryButton = gr.Button(value="📂 Open save directory")
         saveDirectoryButton.click(fn=open_save_dir)
         selectModelDropdown.change(fn=change_model, inputs=[selectModelDropdown])
-        actionButton.click(fn=swap_faces, inputs=[imageInput, targetImageInput, targetVideoInput, inputType], outputs=[swappedImageOutput,swappedVideoOutput])
-
+    consoleOutputPanel = gr.Code(label="Console Output", value="# Starting point\n", interactive=False, language="shell")
+    actionButton.click(fn=swap_faces, inputs=[imageInput, targetImageInput, targetVideoInput, inputType], outputs=[swappedImageOutput,swappedVideoOutput, consoleOutputPanel])
 if __name__ == "__main__":
     demo.launch()   

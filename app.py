@@ -10,15 +10,21 @@ def current_milli_time():
 
 
 # Define paths
-facedancer_path = os.path.abspath("./FaceDancer")
-facedancer_path = facedancer_path.replace(os.sep, '/')
-facedancer_model_path = os.path.abspath("./FaceDancer/model_zoo/FaceDancer_config_c_HQ.h5")
-facedancer_model_path = facedancer_model_path.replace(os.sep, '/')
+selected_model = "FaceDancer_config_c_HQ.h5"
+facedancer_path = os.path.abspath("./FaceDancer").replace(os.sep, '/')
+facedancer_model_zoo = os.path.join(facedancer_path, "model_zoo").replace(os.sep, '/')
+model_zoo_models = list(filter(lambda file: file.endswith(".h5"), os.listdir(facedancer_model_zoo)))
+
+def change_model(dropdown):
+    global selected_model
+    selected_model = dropdown
+    print("Changed model to " + selected_model)
 
 # This is where magic starts
 def swap_faces(inputImg, targetImg, targetVid, inputType):
+    facedancer_model_path = os.path.join(facedancer_model_zoo, selected_model).replace(os.sep, '/')
     resultFileName = "results/{}".format(current_milli_time())
-    outputFile = os.path.join(facedancer_path, resultFileName)
+    outputFile = os.path.join(facedancer_path, resultFileName).replace(os.sep, '/')
     # Use related script based on the input type 
     # and save as .png if it's image
     # if not save as .mp4 
@@ -41,7 +47,6 @@ def swap_faces(inputImg, targetImg, targetVid, inputType):
     except subprocess.CalledProcessError as e:
         print(e.output)
         return [None, None]
-
 
 # Opens the save directory in dedicated expolorer of each os
 def open_save_dir():
@@ -69,8 +74,12 @@ with gr.Blocks() as demo:
         with gr.Column():
             inputType = gr.Radio(interactive=True,label="Target is:",show_label=True, value="Image", choices=["Image", "Video / Gif"])
             actionButton = gr.Button(value="🎭 Swap Faces",variant="primary")
-        saveDirectoryButton = gr.Button(value="📂 Open save directory")
+        with gr.Column():
+            selectModelDropdown = gr.Dropdown(choices=model_zoo_models, label="💾 Select Model", value=selected_model, interactive=True, allow_custom_value=False)
+            saveDirectoryButton = gr.Button(value="📂 Open save directory")
         saveDirectoryButton.click(fn=open_save_dir)
+        selectModelDropdown.change(fn=change_model, inputs=[selectModelDropdown])
         actionButton.click(fn=swap_faces, inputs=[imageInput, targetImageInput, targetVideoInput, inputType], outputs=[swappedImageOutput,swappedVideoOutput])
+
 if __name__ == "__main__":
     demo.launch()   

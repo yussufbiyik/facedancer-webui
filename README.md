@@ -6,7 +6,7 @@ This project is aimed to create an easy to use user interface for FaceDancer, ju
 
 ## Requirements
 - FaceDancer must be downloaded, follow the original installation guide [here](https://github.com/felixrosberg/FaceDancer/tree/main#installation)
-- FaceDancer_config_c_HQ.h5 model, this was the model that gave me the best results (I am hoping to add model selector later on)
+- Any facedancer model you want
 
 
 ## Installation
@@ -24,7 +24,7 @@ gradio app.py
 ## Todos
 - [ ] Move gif input to image box
 - [ ] Add webcam input
-- [ ] Add model selector
+- [x] Add model selector
 - [ ] Add live console output to UI
 - [ ] Add options to save as png, jpg, mp4 etc.
 - [ ] Prevent UI elements from getting to tall and crossing 100% height

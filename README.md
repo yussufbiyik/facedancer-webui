@@ -22,7 +22,7 @@ gradio app.py
 ```
 
 ## Todos
-- [ ] Move gif input to image box
+- [ ] Move gif input to image box (Looks like it can't be done because of gradio inputting the selected gif as .png file)
 - [ ] Add webcam input
 - [x] Add model selector
 - [x] Add ~~live~~ console output to UI

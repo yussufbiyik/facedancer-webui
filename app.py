@@ -18,7 +18,9 @@ model_zoo_models = list(filter(lambda file: file.endswith(".h5"), os.listdir(fac
 def change_model(dropdown):
     global selected_model
     selected_model = dropdown
-    print("Changed model to " + selected_model)
+    infoMessage = "Changed model to " + selected_model
+    print(infoMessage)
+    return infoMessage
 
 # This is where magic starts
 def swap_faces(inputImg, targetImg, targetVid, inputType):
@@ -64,24 +66,27 @@ def open_save_dir():
 # Create the UI
 with gr.Blocks() as demo:
     demo.title = "FaceDancer WebUI"
-    gr.Markdown("Put your swap source and target video/image to related inputs then click the run button to get the output.")
-    with gr.Row().style(equal_height=True):
-        imageInput = gr.Image(label="Swap Source", type="filepath")
-        targetImageInput = gr.Image(label="Swap Target Image", type="filepath")
-        targetVideoInput = gr.Video(label="Swap Target Video / Gif")
-    with gr.Row().style(equal_height=True):
-        swappedImageOutput = gr.Image(label="Swaped Image Result")
-        swappedVideoOutput = gr.Video(label="Swapped Video Result")
-    with gr.Row().style(equal_height=True):
-        with gr.Column():
+    with gr.Tab("FaceDancer"):
+        gr.Markdown("Put your swap source and target video/image to related inputs then click the run button to get the output.")
+        with gr.Row().style(equal_height=True):
+            imageInput = gr.Image(label="Swap Source", type="filepath")
+            targetImageInput = gr.Image(label="Swap Target Image", type="filepath")
+            targetVideoInput = gr.Video(label="Swap Target Video / Gif")
+        with gr.Row().style(equal_height=True):
+            swappedImageOutput = gr.Image(label="Swaped Image Result")
+            swappedVideoOutput = gr.Video(label="Swapped Video Result")
+        with gr.Row().style(equal_height=True):
             inputType = gr.Radio(interactive=True,label="Target is:",show_label=True, value="Image", choices=["Image", "Video / Gif"])
-            actionButton = gr.Button(value="🎭 Swap Faces",variant="primary")
-        with gr.Column():
-            selectModelDropdown = gr.Dropdown(choices=model_zoo_models, label="💾 Select Model", value=selected_model, interactive=True, allow_custom_value=False)
-            saveDirectoryButton = gr.Button(value="📂 Open save directory")
-        saveDirectoryButton.click(fn=open_save_dir)
-        selectModelDropdown.change(fn=change_model, inputs=[selectModelDropdown])
-    consoleOutputPanel = gr.Code(label="Console Output", value="# Starting point\n", interactive=False, language="shell")
-    actionButton.click(fn=swap_faces, inputs=[imageInput, targetImageInput, targetVideoInput, inputType], outputs=[swappedImageOutput,swappedVideoOutput, consoleOutputPanel])
+            with gr.Row():
+                actionButton = gr.Button(value="🎭 Swap Faces",variant="primary")
+                saveDirectoryButton = gr.Button(value="📂 Open save directory")
+                saveDirectoryButton.click(fn=open_save_dir)
+        with gr.Row().style(equal_height=True):
+            webUILogs = gr.Code(label="WebUI Logs", value="# Starting point\n", interactive=False, language="shell")
+            consoleOutputPanel = gr.Code(label="FaceDancer Output", value="# Starting point\n", interactive=False, language="shell")
+        actionButton.click(fn=swap_faces, inputs=[imageInput, targetImageInput, targetVideoInput, inputType], outputs=[swappedImageOutput,swappedVideoOutput, consoleOutputPanel])
+    with gr.Tab("Settings"):
+        selectModelDropdown = gr.Dropdown(choices=model_zoo_models, label="💾 Select Model", value=selected_model, interactive=True, allow_custom_value=False)
+        selectModelDropdown.change(fn=change_model, inputs=[selectModelDropdown], outputs=[webUILogs])
 if __name__ == "__main__":
     demo.launch()   

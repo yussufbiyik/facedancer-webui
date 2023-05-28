@@ -12,11 +12,11 @@ This project is aimed to create an easy to use user interface for FaceDancer, ju
 ## Installation
 1. Create a conda environment
 ```shell
-    conda create --name facedancer-webui
+conda create --name facedancer-webui
 ```
 2. Activate conda environment
 ```shell
-    conda activate facedancer-webui
+conda activate facedancer-webui
 ```
 3. Install gradio
 ```shell

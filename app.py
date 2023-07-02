@@ -77,7 +77,7 @@ with gr.Blocks() as demo:
             swappedVideoOutput = gr.Video(label="Swapped Video Result")
         with gr.Row().style(equal_height=True):
             inputType = gr.Radio(interactive=True,label="Target is:",show_label=True, value="Image", choices=["Image", "Video / Gif"])
-            with gr.Row():
+            with gr.Row().style(equal_height=True):
                 actionButton = gr.Button(value="🎭 Swap Faces",variant="primary")
                 saveDirectoryButton = gr.Button(value="📂 Open save directory")
                 saveDirectoryButton.click(fn=open_save_dir)
@@ -89,4 +89,4 @@ with gr.Blocks() as demo:
         selectModelDropdown = gr.Dropdown(choices=model_zoo_models, label="💾 Select Model", value=selected_model, interactive=True, allow_custom_value=False)
         selectModelDropdown.change(fn=change_model, inputs=[selectModelDropdown], outputs=[webUILogs])
 if __name__ == "__main__":
-    demo.launch()   
+    demo.launch(server_port=7960)   

@@ -31,9 +31,9 @@ gradio app.py
 
 ## Todos
 - [ ] Create webui.bat to launch the webui automatically
-- [ ] Move gif input to image box (Looks like it can't be done because of gradio inputting the selected gif as .png file)
+- [ ] ~~Move gif input to image box~~ (Looks like it can't be done because of gradio inputting the selected gif as .png file)
 - [ ] Add webcam input
 - [x] Add model selector
 - [x] Add ~~live~~ console output to UI
-- [ ] Add options to save as png, jpg, mp4 etc.
-- [ ] Prevent UI elements from getting to tall and crossing 100% height
+- [x] Add options to save as png, jpg, mp4 etc.
+- [ ] Prevent UI elements from becoming too tall and crossing 100% height

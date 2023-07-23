@@ -15,10 +15,29 @@ facedancer_path = os.path.abspath("./FaceDancer").replace(os.sep, '/')
 facedancer_model_zoo = os.path.join(facedancer_path, "model_zoo").replace(os.sep, '/')
 model_zoo_models = list(filter(lambda file: file.endswith(".h5"), os.listdir(facedancer_model_zoo)))
 
+# Define defaults
+output_extension = "png"
+output_extension_video = "mp4"
+
 def change_model(dropdown):
     global selected_model
     selected_model = dropdown
     infoMessage = "Changed model to " + selected_model
+    print(infoMessage)
+    return infoMessage
+
+def change_video_output_extension(extension):
+    global output_extension_video
+    output_extension_video = extension
+    infoMessage = "Changed video output extension to " + extension
+    print(infoMessage)
+    return infoMessage
+
+
+def change_image_output_extension(extension):
+    global output_extension
+    output_extension = extension
+    infoMessage = "Changed image output extension to " + extension
     print(infoMessage)
     return infoMessage
 
@@ -33,9 +52,9 @@ def swap_faces(inputImg, targetImg, targetVid, inputType):
     mainTarget=targetVid
     if inputType=="Image":
         mainTarget = targetImg
-        cmd = '''cd {} && conda activate facedancer && python test_image_swap_multi.py --facedancer_path "{}" --swap_source "{}" --img_path "{}" --img_output "{}.png"'''.format(facedancer_path, facedancer_model_path, inputImg, mainTarget, outputFile)
+        cmd = '''cd {} && conda activate facedancer && python test_image_swap_multi.py --facedancer_path "{}" --swap_source "{}" --img_path "{}" --img_output "{}.{}"'''.format(facedancer_path, facedancer_model_path, inputImg, mainTarget, outputFile, output_extension)
     else:
-        cmd = '''cd {} && conda activate facedancer && python test_video_swap_multi.py --facedancer_path "{}" --swap_source "{}" --vid_path "{}" --vid_output "{}.mp4"'''.format(facedancer_path, facedancer_model_path, inputImg, mainTarget, outputFile)
+        cmd = '''cd {} && conda activate facedancer && python test_video_swap_multi.py --facedancer_path "{}" --swap_source "{}" --vid_path "{}" --vid_output "{}.{}"'''.format(facedancer_path, facedancer_model_path, inputImg, mainTarget, outputFile, output_extension_video)
     try:
         process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
         consoleLog = ""
@@ -45,9 +64,9 @@ def swap_faces(inputImg, targetImg, targetVid, inputType):
         # Wait for the process to finish
         process.wait()
         if inputType == "Image":
-            return [outputFile + ".png", None, consoleLog]
+            return [outputFile + "." + output_extension, None, consoleLog]
         else:
-            return [None, outputFile + ".mp4", consoleLog]
+            return [None, outputFile + "." + output_extension_video, consoleLog]
     except subprocess.CalledProcessError as e:
         print(e.output)
         return [None, None, consoleLog]
@@ -87,6 +106,10 @@ with gr.Blocks() as demo:
         actionButton.click(fn=swap_faces, inputs=[imageInput, targetImageInput, targetVideoInput, inputType], outputs=[swappedImageOutput,swappedVideoOutput, consoleOutputPanel])
     with gr.Tab("Settings"):
         selectModelDropdown = gr.Dropdown(choices=model_zoo_models, label="💾 Select Model", value=selected_model, interactive=True, allow_custom_value=False)
+        selectVideoOutputExtensionDropdown = gr.Dropdown(choices=["mp4", "webm"], label="📹 Select Video Output", value="mp4", interactive=True, allow_custom_value=True)
+        selectImageOutputExtensionDropdown = gr.Dropdown(choices=["png", "jpg"], label="📸 Select Image Output", value="png", interactive=True, allow_custom_value=True)
+        selectVideoOutputExtensionDropdown.change(fn=change_video_output_extension, inputs=[selectVideoOutputExtensionDropdown], outputs=[webUILogs])
+        selectImageOutputExtensionDropdown.change(fn=change_image_output_extension, inputs=[selectImageOutputExtensionDropdown], outputs=[webUILogs])
         selectModelDropdown.change(fn=change_model, inputs=[selectModelDropdown], outputs=[webUILogs])
 if __name__ == "__main__":
     demo.launch(server_port=7960)   

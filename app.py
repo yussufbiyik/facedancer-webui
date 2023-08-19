@@ -18,6 +18,7 @@ model_zoo_models = list(filter(lambda file: file.endswith(".h5"), os.listdir(fac
 # Define defaults
 output_extension = "png"
 output_extension_video = "mp4"
+image_input_source = "upload"
 
 def change_model(dropdown):
     global selected_model
@@ -82,6 +83,11 @@ def open_save_dir():
     else:
         print("Unsupported operating system.")
 
+def toggle_webcam():
+    global image_input_source
+    image_input_source = "webcam" if image_input_source == "upload" else "upload"
+    return [{"source": image_input_source, "__type__": "update"}, {"value":f"Source changed to {image_input_source.capitalize()}", "__type__": "update"}]
+
 # Create the UI
 with gr.Blocks() as demo:
     demo.title = "FaceDancer WebUI"
@@ -89,7 +95,9 @@ with gr.Blocks() as demo:
         gr.Markdown("Put your swap source and target video/image to related inputs then click the run button to get the output.")
         with gr.Row().style(equal_height=True):
             imageInput = gr.Image(label="Swap Source", type="filepath")
-            targetImageInput = gr.Image(label="Swap Target Image", type="filepath")
+            with gr.Column():
+                targetImageInput = gr.Image(label="Swap Target Image", type="filepath")
+                webcamToggleButton = gr.Button(value="Toggle Webcam 📷", variant="primary")
             targetVideoInput = gr.Video(label="Swap Target Video / Gif")
         with gr.Row().style(equal_height=True):
             swappedImageOutput = gr.Image(label="Swaped Image Result")
@@ -104,6 +112,7 @@ with gr.Blocks() as demo:
             webUILogs = gr.Code(label="WebUI Logs", value="# Starting point\n", interactive=False, language="shell")
             consoleOutputPanel = gr.Code(label="FaceDancer Output", value="# Starting point\n", interactive=False, language="shell")
         actionButton.click(fn=swap_faces, inputs=[imageInput, targetImageInput, targetVideoInput, inputType], outputs=[swappedImageOutput,swappedVideoOutput, consoleOutputPanel])
+        webcamToggleButton.click(fn=toggle_webcam, outputs=[targetImageInput, consoleOutputPanel])
     with gr.Tab("Settings"):
         selectModelDropdown = gr.Dropdown(choices=model_zoo_models, label="💾 Select Model", value=selected_model, interactive=True, allow_custom_value=False)
         selectVideoOutputExtensionDropdown = gr.Dropdown(choices=["mp4", "webm"], label="📹 Select Video Output", value="mp4", interactive=True, allow_custom_value=True)

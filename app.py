@@ -94,7 +94,7 @@ with gr.Blocks() as demo:
             imageInput = gr.Image(label="Swap Source", type="filepath")
             with gr.Column():
                 targetImageInput = gr.Image(label="Swap Target Image", type="filepath")
-                webcamToggleButton = gr.Button(value="Toggle Webcam 📷", variant="primary")
+                webcamToggleButton = gr.Button(value="📷 Toggle Webcam")
             targetVideoInput = gr.Video(label="Swap Target Video / Gif")
         with gr.Row().style(equal_height=True):
             swappedImageOutput = gr.Image(label="Swaped Image Result")

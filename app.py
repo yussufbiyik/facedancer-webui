@@ -45,29 +45,26 @@ def change_image_output_extension(extension):
 # This is where magic starts
 def swap_faces(inputImg, targetImg, targetVid, inputType):
     facedancer_model_path = os.path.join(facedancer_model_zoo, selected_model).replace(os.sep, '/')
-    resultFileName = "results/{}".format(current_milli_time())
+    resultFileName = f"results/{int(time.time())}"
     outputFile = os.path.join(facedancer_path, resultFileName).replace(os.sep, '/')
-    # Use related script based on the input type 
-    # and save as .png if it's image
-    # if not save as .mp4 
-    mainTarget=targetVid
-    if inputType=="Image":
-        mainTarget = targetImg
-        cmd = '''cd {} && conda activate facedancer && python test_image_swap_multi.py --facedancer_path "{}" --swap_source "{}" --img_path "{}" --img_output "{}.{}"'''.format(facedancer_path, facedancer_model_path, inputImg, mainTarget, outputFile, output_extension)
-    else:
-        cmd = '''cd {} && conda activate facedancer && python test_video_swap_multi.py --facedancer_path "{}" --swap_source "{}" --vid_path "{}" --vid_output "{}.{}"'''.format(facedancer_path, facedancer_model_path, inputImg, mainTarget, outputFile, output_extension_video)
+    # Determine main target and output extension based on input type
+    mainTarget = targetImg if inputType == "Image" else targetVid
+    commandSpecific = "img" if inputType == "Image" else "vid"
+    swap_output_extension = output_extension if inputType == "Image" else output_extension_video
+    # Choose the appropriate script name based on input type
+    script_name = "test_image_swap_multi.py" if inputType == "Image" else "test_video_swap_multi.py"
+    # Construct the command
+    cmd = f'''cd {facedancer_path} && conda activate facedancer && python {script_name} --facedancer_path "{facedancer_model_path}" --swap_source "{inputImg}" --{commandSpecific}_path "{mainTarget}" --{commandSpecific}_output "{outputFile}.{swap_output_extension}"'''
     try:
+        # Execute the command and capture console output
         process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-        consoleLog = ""
-        for line in process.stdout:
-            print(line)
-            consoleLog += line
-        # Wait for the process to finish
-        process.wait()
+        consoleLog = process.communicate()[0]
+        print(consoleLog)
+        # Determine return values based on input type
         if inputType == "Image":
-            return [outputFile + "." + output_extension, None, consoleLog]
+            return [f"{outputFile}.{swap_output_extension}", None, consoleLog]
         else:
-            return [None, outputFile + "." + output_extension_video, consoleLog]
+            return [None, f"{outputFile}.{output_extension_video}", consoleLog]
     except subprocess.CalledProcessError as e:
         print(e.output)
         return [None, None, consoleLog]

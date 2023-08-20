@@ -50,6 +50,7 @@ def swap_faces(inputImg, targetImg, targetVid, inputType):
     # Determine main target and output extension based on input type
     mainTarget = targetImg if inputType == "Image" else targetVid
     commandSpecific = "img" if inputType == "Image" else "vid"
+    print(targetImg)
     swap_output_extension = output_extension if inputType == "Image" else output_extension_video
     # Choose the appropriate script name based on input type
     script_name = "test_image_swap_multi.py" if inputType == "Image" else "test_video_swap_multi.py"
@@ -97,11 +98,13 @@ with gr.Blocks() as demo:
         with gr.Row().style(equal_height=True):
             with gr.Column():
                 imageInput = gr.Image(label="Swap Source", type="filepath")
-                webcamToggleButtonforSource = gr.Button(value="Toggle Webcam")
+                sourceWebcamToggleButton = gr.Button(value="Toggle Webcam")
             with gr.Column():
                 targetImageInput = gr.Image(label="Swap Target Image", type="filepath")
-                webcamToggleButtonforTarget = gr.Button(value="Toggle Webcam")
-            targetVideoInput = gr.Video(label="Swap Target Video / Gif")
+                targetWebcamToggleButton = gr.Button(value="Toggle Webcam")
+            with gr.Column():
+                targetVideoInput = gr.Video(label="Swap Target Video / Gif")   
+                videoWebcamToggleButton = gr.Button(value="Toggle Webcam") 
         with gr.Row().style(equal_height=True):
             swappedImageOutput = gr.Image(label="Swaped Image Result")
             swappedVideoOutput = gr.Video(label="Swapped Video Result")
@@ -116,8 +119,9 @@ with gr.Blocks() as demo:
                 webUILogs = gr.Code(label="WebUI Logs", value="# Starting point\n", interactive=False, language="shell")
                 consoleOutputPanel = gr.Code(label="FaceDancer Output", value="# Starting point\n", interactive=False, language="shell")
         actionButton.click(fn=swap_faces, inputs=[imageInput, targetImageInput, targetVideoInput, inputType], outputs=[swappedImageOutput,swappedVideoOutput, consoleOutputPanel])
-        webcamToggleButtonforSource.click(fn=toggle_webcam, outputs=[imageInput, consoleOutputPanel])
-        webcamToggleButtonforTarget.click(fn=toggle_webcam, outputs=[targetImageInput, consoleOutputPanel])
+        sourceWebcamToggleButton.click(fn=toggle_webcam, outputs=[imageInput, consoleOutputPanel])
+        targetWebcamToggleButton.click(fn=toggle_webcam, outputs=[targetImageInput, consoleOutputPanel])
+        videoWebcamToggleButton.click(fn=toggle_webcam, outputs=[targetVideoInput, consoleOutputPanel])
     with gr.Tab("Settings"):
         selectModelDropdown = gr.Dropdown(choices=model_zoo_models, label="💾 Select Model", value=selected_model, interactive=True, allow_custom_value=False)
         selectVideoOutputExtensionDropdown = gr.Dropdown(choices=["mp4", "webm"], label="📹 Select Video Output", value="mp4", interactive=True, allow_custom_value=True)

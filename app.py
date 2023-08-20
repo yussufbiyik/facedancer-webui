@@ -111,9 +111,10 @@ with gr.Blocks() as demo:
                 actionButton = gr.Button(value="🎭 Swap Faces",variant="primary")
                 saveDirectoryButton = gr.Button(value="📂 Open save directory")
                 saveDirectoryButton.click(fn=open_save_dir)
-        with gr.Row().style(equal_height=True):
-            webUILogs = gr.Code(label="WebUI Logs", value="# Starting point\n", interactive=False, language="shell")
-            consoleOutputPanel = gr.Code(label="FaceDancer Output", value="# Starting point\n", interactive=False, language="shell")
+        with gr.Accordion(label="Show Logs", open=False):
+            with gr.Row().style(equal_height=True):
+                webUILogs = gr.Code(label="WebUI Logs", value="# Starting point\n", interactive=False, language="shell")
+                consoleOutputPanel = gr.Code(label="FaceDancer Output", value="# Starting point\n", interactive=False, language="shell")
         actionButton.click(fn=swap_faces, inputs=[imageInput, targetImageInput, targetVideoInput, inputType], outputs=[swappedImageOutput,swappedVideoOutput, consoleOutputPanel])
         webcamToggleButtonforSource.click(fn=toggle_webcam, outputs=[imageInput, consoleOutputPanel])
         webcamToggleButtonforTarget.click(fn=toggle_webcam, outputs=[targetImageInput, consoleOutputPanel])

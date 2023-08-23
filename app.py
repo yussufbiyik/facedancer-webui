@@ -50,7 +50,6 @@ def swap_faces(inputImg, targetImg, targetVid, inputType):
     # Determine main target and output extension based on input type
     mainTarget = targetImg if inputType == "Image" else targetVid
     commandSpecific = "img" if inputType == "Image" else "vid"
-    print(targetImg)
     swap_output_extension = output_extension if inputType == "Image" else output_extension_video
     # Choose the appropriate script name based on input type
     script_name = "test_image_swap_multi.py" if inputType == "Image" else "test_video_swap_multi.py"

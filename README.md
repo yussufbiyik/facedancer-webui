@@ -36,5 +36,6 @@ gradio app.py
 - [x] Add model selector
 - [x] Add ~~live~~ console output to UI
 - [x] Add options to save as png, jpg, mp4 etc.
+- [ ] Add GFPGAN etc. for face enhancing?
 - [ ] Fix webui logging, can be fixed by passing something like `{"value":f"{webUILogs.value}\nSource changed to {image_input_source.capitalize()}", "__type__": "update"}` to webUILogs block, but `{webUILogs.value}` always returns the original value
 - [ ] Prevent UI elements from becoming too tall and crossing 100% height

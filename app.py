@@ -4,6 +4,20 @@ import subprocess
 import sys
 import time
 
+sys.path.insert(1, './FaceDancer')
+import logging
+
+import tensorflow as tf
+from tensorflow.keras.models import load_model
+from tensorflow_addons.layers import InstanceNormalization
+
+from networks.layers import AdaIN, AdaptiveAttention
+from retinaface.models import *
+from utils.swap_func import run_inference
+from utils.swap_func import video_swap
+
+logging.getLogger().setLevel(logging.ERROR)
+
 # Use current time as miliseconds to give each result a unique name
 def current_milli_time():
     return round(time.time() * 1000)
@@ -14,6 +28,8 @@ selected_model = "FaceDancer_config_c_HQ.h5"
 facedancer_path = os.path.abspath("./FaceDancer").replace(os.sep, '/')
 facedancer_model_zoo = os.path.join(facedancer_path, "model_zoo").replace(os.sep, '/')
 model_zoo_models = list(filter(lambda file: file.endswith(".h5"), os.listdir(facedancer_model_zoo)))
+retina_path = "./FaceDancer/retinaface/RetinaFace-Res50.h5"
+arcface_path = "./FaceDancer/arcface_model/ArcFace-Res50.h5"
 
 # Define defaults
 output_extension = "png"
@@ -42,36 +58,62 @@ def change_image_output_extension(extension):
     print(infoMessage)
     return infoMessage
 
+
+if __name__ == '__main__':
+    if len(tf.config.list_physical_devices('GPU')) != 0:
+        gpus = tf.config.experimental.list_physical_devices('GPU')
+        tf.config.set_visible_devices(gpus["0"], 'GPU')
+
+    print('\nInitializing FaceDancer...')
+    RetinaFace = load_model(retina_path, compile=False,
+                            custom_objects={"FPN": FPN,
+                                            "SSH": SSH,
+                                            "BboxHead": BboxHead,
+                                            "LandmarkHead": LandmarkHead,
+                                            "ClassHead": ClassHead})
+    ArcFace = load_model(arcface_path, compile=False)
+    facedancer_model_path = os.path.join(facedancer_model_zoo, selected_model).replace(os.sep, '/')
+    G = load_model(facedancer_model_path, compile=False,
+                custom_objects={"AdaIN": AdaIN,
+                                "AdaptiveAttention": AdaptiveAttention,
+                                "InstanceNormalization": InstanceNormalization})
+    G.summary()
+
+def handle_facedancer(mode, params):
+    resultPath = ""
+    if mode == "Image":
+        print('\nProcessing: {}'.format(params.img_path))
+        run_inference(params, params.swap_source, params.img_path,
+                RetinaFace, ArcFace, G, params.img_output)
+        print('\nDone! {}'.format(params.img_output))
+        resultPath = params.img_output
+    else:
+        print('\nProcessing: {}'.format(params.vid_path))
+        video_swap(params, params.swap_source, params.vid_path, RetinaFace, ArcFace, G, params.vid_output)
+        resultPath = params.vid_output
+    return resultPath
 # This is where magic starts
 def swap_faces(inputImg, targetImg, targetVid, inputType):
     facedancer_model_path = os.path.join(facedancer_model_zoo, selected_model).replace(os.sep, '/')
     resultFileName = f"results/{int(time.time())}"
     outputFile = os.path.join(facedancer_path, resultFileName).replace(os.sep, '/')
-    # Determine main target and output extension based on input type
-    mainTarget = targetImg if inputType == "Image" else targetVid
-    commandSpecific = "img" if inputType == "Image" else "vid"
     swap_output_extension = output_extension if inputType == "Image" else output_extension_video
-    # Choose the appropriate script name based on input type
-    script_name = "test_image_swap_multi.py" if inputType == "Image" else "test_video_swap_multi.py"
-    # Construct the command
-    cmd = f'''cd {facedancer_path} && conda activate facedancer && python {script_name} --facedancer_path "{facedancer_model_path}" --swap_source "{inputImg}" --{commandSpecific}_path "{mainTarget}" --{commandSpecific}_output "{outputFile}.{swap_output_extension}"'''
-    try:
-        # Execute the command and capture console output
-        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-        consoleLog = ""
-        for line in process.stdout:
-            print(line)
-            consoleLog += line
-        # Wait for the process to finish
-        process.wait()
-        # Determine return values based on input type
-        if inputType == "Image":
-            return [f"{outputFile}.{swap_output_extension}", None, consoleLog]
-        else:
-            return [None, f"{outputFile}.{output_extension_video}", consoleLog]
-    except subprocess.CalledProcessError as e:
-        print(e.output)
-        return [None, None, consoleLog]
+    class FacedancerOptions:
+        device_id = "0"
+        retina_path = "./FaceDancer/retinaface/RetinaFace-Res50.h5"
+        arcface_path = "./FaceDancer/arcface_model/ArcFace-Res50.h5"
+        facedancer_path = facedancer_model_path
+        swap_source = inputImg
+        vid_path = targetVid
+        img_path = targetImg
+        vid_output = f"{outputFile}.{swap_output_extension}"
+        img_output = f"{outputFile}.{swap_output_extension}"
+        align_source = True
+    resultPath = handle_facedancer(inputType, FacedancerOptions())
+    if inputType == "Image":
+        return [resultPath, None, "Finished"]
+    else:
+        return [None, resultPath, "Finished"]
 
 # Opens the save directory in dedicated expolorer of each os
 def open_save_dir():

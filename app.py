@@ -149,20 +149,14 @@ with gr.Blocks() as demo:
         with gr.Row(equal_height=True):
             with gr.Column():
                 imageInput = gr.Image(label="Swap Source", type="filepath")
-                sourceWebcamToggleButton = gr.Button(value="Toggle Webcam")
             with gr.Column():
                 targetImageInput = gr.Image(label="Swap Target Image", type="filepath")
-                targetWebcamToggleButton = gr.Button(value="Toggle Webcam")
             with gr.Column():
-                targetVideoInput = gr.Video(label="Swap Target Video / Gif")   
-                videoWebcamToggleButton = gr.Button(value="Toggle Webcam") 
+                targetVideoInput = gr.Video(label="Swap Target Video / Gif")
         with gr.Row(equal_height=True):
             swappedImageOutput = gr.Image(label="Swaped Image Result")
             swappedVideoOutput = gr.Video(label="Swapped Video Result")
         actionButton.click(fn=swap_faces, inputs=[imageInput, targetImageInput, targetVideoInput, inputType], outputs=[swappedImageOutput,swappedVideoOutput, consoleOutputPanel])
-        sourceWebcamToggleButton.click(fn=toggle_webcam, outputs=[imageInput, consoleOutputPanel])
-        targetWebcamToggleButton.click(fn=toggle_webcam, outputs=[targetImageInput, consoleOutputPanel])
-        videoWebcamToggleButton.click(fn=toggle_webcam, outputs=[targetVideoInput, consoleOutputPanel])
     with gr.Tab("Settings"):
         selectModelDropdown = gr.Dropdown(choices=model_zoo_models, label="💾 Select Model", value=selected_model, interactive=True, allow_custom_value=False)
         selectVideoOutputExtensionDropdown = gr.Dropdown(choices=["mp4", "webm"], label="📹 Select Video Output", value="mp4", interactive=True, allow_custom_value=True)

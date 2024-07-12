@@ -62,7 +62,7 @@ def change_image_output_extension(extension):
 if __name__ == '__main__':
     if len(tf.config.list_physical_devices('GPU')) != 0:
         gpus = tf.config.experimental.list_physical_devices('GPU')
-        tf.config.set_visible_devices(gpus["0"], 'GPU')
+        tf.config.set_visible_devices(gpus[0], 'GPU')
 
     print('\nInitializing FaceDancer...')
     RetinaFace = load_model(retina_path, compile=False,
@@ -136,7 +136,17 @@ with gr.Blocks() as demo:
     demo.title = "FaceDancer WebUI"
     with gr.Tab("FaceDancer"):
         gr.Markdown("Put your swap source and target video/image to related inputs then click the run button to get the output.")
-        with gr.Row().style(equal_height=True):
+        with gr.Row(equal_height=True):
+            inputType = gr.Radio(interactive=True,label="Target is:",show_label=True, value="Image", choices=["Image", "Video / Gif"])
+            with gr.Row(equal_height=True):
+                actionButton = gr.Button(value="🎭 Swap Faces",variant="primary")
+                saveDirectoryButton = gr.Button(value="📂 Open save directory")
+                saveDirectoryButton.click(fn=open_save_dir)
+        with gr.Accordion(label="Show Logs", open=False):
+            with gr.Row(equal_height=True):
+                webUILogs = gr.Code(label="WebUI Logs", value="# Starting point\n", interactive=False, language="shell")
+                consoleOutputPanel = gr.Code(label="FaceDancer Output", value="# Starting point\n", interactive=False, language="shell")
+        with gr.Row(equal_height=True):
             with gr.Column():
                 imageInput = gr.Image(label="Swap Source", type="filepath")
                 sourceWebcamToggleButton = gr.Button(value="Toggle Webcam")
@@ -146,19 +156,9 @@ with gr.Blocks() as demo:
             with gr.Column():
                 targetVideoInput = gr.Video(label="Swap Target Video / Gif")   
                 videoWebcamToggleButton = gr.Button(value="Toggle Webcam") 
-        with gr.Row().style(equal_height=True):
+        with gr.Row(equal_height=True):
             swappedImageOutput = gr.Image(label="Swaped Image Result")
             swappedVideoOutput = gr.Video(label="Swapped Video Result")
-        with gr.Row().style(equal_height=True):
-            inputType = gr.Radio(interactive=True,label="Target is:",show_label=True, value="Image", choices=["Image", "Video / Gif"])
-            with gr.Row().style(equal_height=True):
-                actionButton = gr.Button(value="🎭 Swap Faces",variant="primary")
-                saveDirectoryButton = gr.Button(value="📂 Open save directory")
-                saveDirectoryButton.click(fn=open_save_dir)
-        with gr.Accordion(label="Show Logs", open=False):
-            with gr.Row().style(equal_height=True):
-                webUILogs = gr.Code(label="WebUI Logs", value="# Starting point\n", interactive=False, language="shell")
-                consoleOutputPanel = gr.Code(label="FaceDancer Output", value="# Starting point\n", interactive=False, language="shell")
         actionButton.click(fn=swap_faces, inputs=[imageInput, targetImageInput, targetVideoInput, inputType], outputs=[swappedImageOutput,swappedVideoOutput, consoleOutputPanel])
         sourceWebcamToggleButton.click(fn=toggle_webcam, outputs=[imageInput, consoleOutputPanel])
         targetWebcamToggleButton.click(fn=toggle_webcam, outputs=[targetImageInput, consoleOutputPanel])

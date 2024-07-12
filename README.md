@@ -5,7 +5,7 @@ This project is aimed to create an easy to use user interface for FaceDancer, ju
 ![Screenshot of the app](screenshot.jpg)
 
 ## Requirements
-- FaceDancer must be downloaded, follow the original installation guide [here](https://github.com/felixrosberg/FaceDancer/tree/main#installation)
+- FaceDancer repository will be downloaded with the webui but you'll still need to follow their download guide [here](https://github.com/felixrosberg/FaceDancer/tree/main#installation)
 - Any facedancer model you want
 
 

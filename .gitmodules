@@ -1,3 +1,4 @@
 [submodule "FaceDancer"]
 	path = FaceDancer
 	url = git@github.com:felixrosberg/FaceDancer.git
+	ignore = dirty

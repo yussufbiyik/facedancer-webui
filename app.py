@@ -1,3 +1,4 @@
+import shutil
 import gradio as gr
 import os
 import subprocess
@@ -81,23 +82,31 @@ if __name__ == '__main__':
 
 def handle_facedancer(mode, params):
     resultPath = ""
-    if mode == "Image":
+    if mode == "Image / Gif":
         print('\nProcessing: {}'.format(params.img_path))
         run_inference(params, params.swap_source, params.img_path,
                 RetinaFace, ArcFace, G, params.img_output)
         print('\nDone! {}'.format(params.img_output))
         resultPath = params.img_output
     else:
-        print('\nProcessing: {}'.format(params.vid_path))
-        video_swap(params, params.swap_source, params.vid_path, RetinaFace, ArcFace, G, params.vid_output)
+        # print(params.img_path)
+        # print(params.vid_path)
+        pathToUse = params.vid_path if params.vid_path != None else params.img_path
+        print('\nProcessing: {}'.format(pathToUse))
+        video_swap(params, params.swap_source, pathToUse, RetinaFace, ArcFace, G, params.vid_output)
         resultPath = params.vid_output
+        # Delete tmp_frames folder after swap completes
+        shutil.rmtree('./tmp_frames')
     return resultPath
 # This is where magic starts
 def swap_faces(inputImg, targetImg, targetVid, inputType):
     facedancer_model_path = os.path.join(facedancer_model_zoo, selected_model).replace(os.sep, '/')
     resultFileName = f"results/{int(time.time())}"
     outputFile = os.path.join(facedancer_path, resultFileName).replace(os.sep, '/')
-    swap_output_extension = output_extension if inputType == "Image" else output_extension_video
+    print(targetImg)
+    if targetImg.endswith(".gif"):
+        inputType = "Video"
+    swap_output_extension = output_extension if inputType == "Image / Gif" else output_extension_video
     class FacedancerOptions:
         device_id = "0"
         retina_path = "./FaceDancer/retinaface/RetinaFace-Res50.h5"
@@ -110,7 +119,7 @@ def swap_faces(inputImg, targetImg, targetVid, inputType):
         img_output = f"{outputFile}.{swap_output_extension}"
         align_source = True
     resultPath = handle_facedancer(inputType, FacedancerOptions())
-    if inputType == "Image":
+    if inputType == "Image / Gif":
         return [resultPath, None, "Finished"]
     else:
         return [None, resultPath, "Finished"]
@@ -126,18 +135,13 @@ def open_save_dir():
     else:
         print("Unsupported operating system.")
 
-def toggle_webcam():
-    global image_input_source
-    image_input_source = "webcam" if image_input_source == "upload" else "upload"
-    return [{"source": image_input_source, "__type__": "update"}, {"value":f"Source changed to {image_input_source.capitalize()}", "__type__": "update"}]
-
 # Create the UI
 with gr.Blocks() as demo:
     demo.title = "FaceDancer WebUI"
     with gr.Tab("FaceDancer"):
         gr.Markdown("Put your swap source and target video/image to related inputs then click the run button to get the output.")
         with gr.Row(equal_height=True):
-            inputType = gr.Radio(interactive=True,label="Target is:",show_label=True, value="Image", choices=["Image", "Video / Gif"])
+            inputType = gr.Radio(interactive=True, label="Target is:", show_label=True, value="Image / Gif", choices=["Image / Gif", "Video"])
             with gr.Row(equal_height=True):
                 actionButton = gr.Button(value="🎭 Swap Faces",variant="primary")
                 saveDirectoryButton = gr.Button(value="📂 Open save directory")
@@ -150,9 +154,9 @@ with gr.Blocks() as demo:
             with gr.Column():
                 imageInput = gr.Image(label="Swap Source", type="filepath")
             with gr.Column():
-                targetImageInput = gr.Image(label="Swap Target Image", type="filepath")
+                targetImageInput = gr.Image(label="Swap Target Image / Gif", type="filepath")
             with gr.Column():
-                targetVideoInput = gr.Video(label="Swap Target Video / Gif")
+                targetVideoInput = gr.Video(label="Swap Target Video")
         with gr.Row(equal_height=True):
             swappedImageOutput = gr.Image(label="Swaped Image Result")
             swappedVideoOutput = gr.Video(label="Swapped Video Result")

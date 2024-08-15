@@ -10,25 +10,29 @@ This project is aimed to create an easy to use user interface for FaceDancer, ju
 
 
 ## Installation
-1. Create a conda environment and download all requirements
+1. Create a conda environment
 ```shell
-conda create --name facedancer-webui --file requirements.txt
+conda create --name facedancer-webui
 ```
 2. Activate conda environment
 ```shell
 conda activate facedancer-webui
 ```
-3. Follow Facedancer install guide [here](https://github.com/felixrosberg/FaceDancer/tree/main#installation).
-Open the terminal in the root directory while following it.
+3. Follow Facedancer install guide [here](https://github.com/felixrosberg/FaceDancer/tree/main#installation) 
 
+Only follow the parts after the conda commands. Follow the guide on the webui conda environment
 
-This step may be flawed, this is my first time making a project like this, if you get errors please let me know and also manually install the packages that cause errors.
-4. Run the app
+4. Install gradio
+```shell
+pip install gradio
+```
+5. Run the app
 ```shell
 python app.py
 # Run with live reload using the following command if you want to edit the code
 gradio app.py
 ```
+This is my first time making a project like this, if you get errors please let me know and also manually install the packages that cause errors.
 
 ## Todos
 - [X] Launch the model within to prevent long loading times.

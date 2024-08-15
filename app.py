@@ -104,7 +104,7 @@ def swap_faces(inputImg, targetImg, targetVid, inputType):
     resultFileName = f"results/{int(time.time())}"
     outputFile = os.path.join(facedancer_path, resultFileName).replace(os.sep, '/')
     print(targetImg)
-    if targetImg.endswith(".gif"):
+    if targetImg!=None and targetImg.endswith(".gif"):
         inputType = "Video"
     swap_output_extension = output_extension if inputType == "Image / Gif" else output_extension_video
     class FacedancerOptions:

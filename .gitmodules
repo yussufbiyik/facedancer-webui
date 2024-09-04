@@ -1,0 +1,3 @@
+[submodule "FaceDancer"]
+	path = FaceDancer
+	url = git@github.com:yussufbiyik/FaceDancer.git

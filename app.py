@@ -89,14 +89,10 @@ def handle_facedancer(mode, params):
         print('\nDone! {}'.format(params.img_output))
         resultPath = params.img_output
     else:
-        # print(params.img_path)
-        # print(params.vid_path)
         pathToUse = params.vid_path if params.vid_path != None else params.img_path
         print('\nProcessing: {}'.format(pathToUse))
         video_swap(params, params.swap_source, pathToUse, RetinaFace, ArcFace, G, params.vid_output)
         resultPath = params.vid_output
-        # Delete tmp_frames folder after swap completes
-        shutil.rmtree('./tmp_frames')
     return resultPath
 # This is where magic starts
 def swap_faces(inputImg, targetImg, targetVid, inputType):
